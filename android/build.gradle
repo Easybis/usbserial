@@ -35,7 +35,7 @@ android {
     namespace 'dev.bessems.usbserial'
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 17
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     lintOptions {
@@ -49,6 +49,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.github.felHR85:UsbSerial:6.1.0'
+    // EasyBIS: usb-serial-for-android (supports PL2303 G/HXN e.g. 067b:23a3, CH34x, CP21xx, FTDI, PL2303HX, CDC)
+    implementation 'com.github.mik3y:usb-serial-for-android:3.9.0'
 }
 
