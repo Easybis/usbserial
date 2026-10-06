@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:usb_serial/echo_port.dart';
-import 'package:usb_serial/transaction.dart';
+import 'package:easybis_usb_serial/echo_port.dart';
+import 'package:easybis_usb_serial/transaction.dart';
 
 void testTransaction() {
   test("Testing Binary Transaction", () async {

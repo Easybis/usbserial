@@ -1,4 +1,4 @@
-package dev.bessems.usbserial;
+package com.easybis.usbserial;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
@@ -49,7 +49,7 @@ public class UsbSerialPlugin implements FlutterPlugin, MethodCallHandler, EventC
     private BinaryMessenger m_Messenger;
     private EventChannel.EventSink m_EventSink;
 
-    private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = "com.easybis.usbserial.USB_PERMISSION";
     public static final String ACTION_USB_ATTACHED = "android.hardware.usb.action.USB_DEVICE_ATTACHED";
     public static final String ACTION_USB_DETACHED = "android.hardware.usb.action.USB_DEVICE_DETACHED";
 
@@ -319,7 +319,7 @@ public class UsbSerialPlugin implements FlutterPlugin, MethodCallHandler, EventC
         m_Context = context;
         m_Manager = (UsbManager) m_Context.getSystemService(android.content.Context.USB_SERVICE);
         m_InterfaceId = 100;
-        m_EventChannel = new EventChannel(messenger, "usb_serial/usb_events");
+        m_EventChannel = new EventChannel(messenger, "easybis_usb_serial/usb_events");
         m_EventChannel.setStreamHandler(this);
 
         IntentFilter filter = new IntentFilter();
@@ -344,7 +344,7 @@ public class UsbSerialPlugin implements FlutterPlugin, MethodCallHandler, EventC
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
         register(flutterPluginBinding.getBinaryMessenger(), flutterPluginBinding.getApplicationContext());
-        m_Channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "usb_serial");
+        m_Channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "easybis_usb_serial");
         m_Channel.setMethodCallHandler(this);
 
     }

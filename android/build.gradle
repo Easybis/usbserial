@@ -1,4 +1,4 @@
-group 'dev.bessems.usbserial'
+group 'com.easybis.usbserial'
 version '1.0'
 
 buildscript {
@@ -32,7 +32,7 @@ apply plugin: 'com.android.library'
 android {
     compileSdkVersion 33
     
-    namespace 'dev.bessems.usbserial'
+    namespace 'com.easybis.usbserial'
 
     defaultConfig {
         minSdkVersion 17

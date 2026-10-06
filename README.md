@@ -1,218 +1,71 @@
-# Easybis fork (0.6.0)
+# easybis_usb_serial
 
-This branch moves the Android side to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android)
-so that the Prolific PL2303 G / HXN family (e.g. PL2303GC `067b:23a3`) works, while CH34x, CP21xx,
-FTDI, PL2303HX and CDC-ACM adapters keep working. The Dart API is unchanged. Tested on Android with
-PL2303GC, PL2303HX and FTDI FT231X adapters (weighing scale 9600 8N1, milk analysers 1200 8E1 and
-9600 8E1). Use it from a pubspec with:
+Android USB serial ports for Flutter, for USB-to-serial adapters and devices with their own USB
+serial chip: CH34x, CP21xx, FTDI, CDC-ACM and Prolific PL2303 - **including the newer Prolific
+PL2303 G / HXN family** (PL2303GC `067b:23a3`, GB `23b3`, GT `23c3`, GL `23d3`, GE `23e3`,
+GS `23f3`), which many cheap USB-serial cables use today.
+
+This is a fork of [usb_serial](https://pub.dev/packages/usb_serial) by Ron Bessems
+([altera2015/usbserial](https://github.com/altera2015/usbserial)). The Dart API is the same; the
+Android side runs on [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android)
+(mik3y) instead of felHR UsbSerial 6.1.0, which rejects the PL2303 G / HXN chips with
+`PlatformException(UsbSerialPortAdapter, Not an Serial device.)`.
+
+Android only.
+
+## Install
 
 ```yaml
 dependencies:
-  usb_serial:
-    git:
-      url: https://github.com/Easybis/usbserial.git
-      ref: easybis/usb-serial-for-android
+  easybis_usb_serial: ^0.6.0
 ```
-
-# Looking for maintainer
-
-I'm looking for a new maintainer for this project, please indicate your interest here: https://github.com/altera2015/usbserial/issues/121
-
-[![Pub](https://img.shields.io/pub/v/usb_serial.svg)](https://pub.dartlang.org/packages/usb_serial) [![Flutter](https://github.com/altera2015/usbserial/actions/workflows/flutter.yml/badge.svg)](https://github.com/altera2015/usbserial/actions/workflows/flutter.yml)
-
-# usb_serial
-
-An Android USB Serial Flutter Plugin
-
-This plugin allows Flutter code to interact with USB serial devices connected to your Android device. For example an FTDI or CDC based USB device.
-
-## Getting Started
-
-Add a dependency to your pubspec.yaml
 
 ```dart
-dependencies:
-	usb_serial: ^0.5.0
+import 'package:easybis_usb_serial/easybis_usb_serial.dart';
 ```
 
-include the usbserial package at the top of your dart file.
+Coming from `usb_serial`: change the dependency and the import; the classes and methods are the
+same (`UsbSerial`, `UsbDevice`, `UsbPort`, `UsbEvent`, `Transaction`, the transformers).
+
+## Use
 
 ```dart
-import 'package:usb_serial/usb_serial.dart'
-```
-
-### Optional
-
-Add
-```xml
-	<intent-filter>
-		<action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-	</intent-filter>
-
-	<meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-		android:resource="@xml/device_filter" />
-```
-to your AndroidManifest.xml
-
-and place device_filter.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- 0x0403 / 0x6001: FTDI FT232R UART -->
-    <usb-device vendor-id="1027" product-id="24577" />
-
-    <!-- 0x0403 / 0x6015: FTDI FT231X -->
-    <usb-device vendor-id="1027" product-id="24597" />
-
-    <!-- 0x2341 / Arduino -->
-    <usb-device vendor-id="9025" />
-
-    <!-- 0x16C0 / 0x0483: Teensyduino  -->
-    <usb-device vendor-id="5824" product-id="1155" />
-
-    <!-- 0x10C4 / 0xEA60: CP210x UART Bridge -->
-    <usb-device vendor-id="4292" product-id="60000" />
-
-    <!-- 0x067B / 0x2303: Prolific PL2303 -->
-    <usb-device vendor-id="1659" product-id="8963" />
-
-    <!-- 0x1366 / 0x0105: Segger JLink -->
-    <usb-device vendor-id="4966" product-id="261" />
-
-    <!-- 0x1366 / 0x0105: CH340 JLink -->
-    <usb-device vendor-id="1A86" product-id="7523" />
-
-</resources>
-```
-
-in the res/xml directory. This will notify your app when one of the specified devices
-is plugged in.
-
-## Usage of Asynchronous API
-
-```dart
-...
-onPressed: () async {
-	List<UsbDevice> devices = await UsbSerial.listDevices();
-	print(devices);
-
-	UsbPort port;
-	if (devices.length == 0) {
-		return;
-	}
-	port = await devices[0].create();
-
-	bool openResult = await port.open();
-	if ( !openResult ) {
-		print("Failed to open");
-		return;
-	}
-
-	await port.setDTR(true);
-	await port.setRTS(true);
-
-	port.setPortParameters(115200, UsbPort.DATABITS_8,
-	  UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
-
-	// print first result and close port.
-	port.inputStream.listen((Uint8List event) {
-		print(event);
-		port.close();
-	});
-
-	await port.write(Uint8List.fromList([0x10, 0x00]));
+final devices = await UsbSerial.listDevices();          // vid, pid, deviceId, names
+final port = await UsbSerial.createFromDeviceId(devices.first.deviceId); // "" = probe the driver
+// or force a driver: UsbSerial.createFromDeviceId(id, UsbSerial.CH34x)  // cdc, ch34x, cp210x, ftdi, pl2303
+if (port != null && await port.open()) {
+  await port.setDTR(true);
+  await port.setRTS(true);
+  await port.setPortParameters(9600, UsbPort.DATABITS_8, UsbPort.STOPBITS_1, UsbPort.PARITY_NONE);
+  port.inputStream?.listen((bytes) => print(bytes), onDone: () => print('unplugged'));
+  await port.write(Uint8List.fromList('hello\r\n'.codeUnits));
 }
-...
+
+UsbSerial.usbEventStream?.listen((e) => print('${e.event} ${e.device}')); // attach / detach
 ```
 
-## Usage of transaction API
+Notes:
 
-This API is a layer on top of the asynchronous part of the library. It provides two
-Stream Transformers and a Transaction helper based on the StreamQueue class.
+- Android asks the user for permission to use the device the first time it is opened.
+- Android gives a USB device a **new `deviceId` every time it is plugged in**; to find "the same"
+  device again later, keep its `vid` / `pid`.
+- Port parameters, DTR, RTS and flow control may be set before or after `open()`.
+- When the device is unplugged the input stream ends (`onDone`).
+- Many devices only send while DTR / RTS are on (e.g. printer-style outputs); set them on unless
+  the device needs them off.
 
-1. Terminated Transformer, this splits incoming data based on a configurable end of message bytes "terminator".
-2. Magic Header + Length byte, this splits incoming data based on a configurable header ( with wildcards! ) and a length byte directly following the header.
+## Tested
 
-In case neither is a fit, you can use one of those Transformers to create you own that is specific
-to the binary format you are dealing with.
+Android 13 (Samsung SM-G780F), Flutter 3.38, real devices, driver chosen automatically:
 
-```dart
+| Adapter | vid:pid | Device | Settings |
+|---|---|---|---|
+| Prolific PL2303GC | 067b:23a3 | weighing scale (continuous text) | 9600 8N1 |
+| FTDI FT231X | 0403:6015 | weighing scale | 9600 8N1 |
+| Prolific PL2303HX | 067b:2303 | weighing scale | 9600 8N1 |
+| Prolific PL2303HX / PL2303GC | 067b:2303 / 23a3 | milk analyser, 25-byte binary frame | 1200 8E1 |
+| Prolific PL2303GC | 067b:23a3 | milk analyser, ASCII printout | 9600 8E1 |
 
-    ...
-    Transaction<String> transaction = Transaction.stringTerminated(port.inputStream, Uint8List.fromList([13,10]));
-    ...
+## Licence
 
-    // While using transactions you can still listen to all
-    // incoming messages!
-    transaction.stream.listen( (String data) {
-      print(data);
-    });
-
-    // you can write asynchronous messages as before!
-    p.write(Uint8List.fromList([65,66,13,10]));
-
-    // BUT you can also write 'transactions'. This is a combination of a flush, write and wait for response
-    // with a timeout. If no response is received within the timeout a null value is returned.
-    // this sends "AB\r\n"
-    var response = await transaction.transaction(p, Uint8List.fromList([65,66,13,10]), Duration(seconds: 1) );
-    print("The response was $response");
-
-```
-
-## Upgrading from pre-0.3.0
-
-
-In version 0.3.0 a resource bug was fixed (issue #35) which required signature
-changes.
-
-
-### Transformer Class changes
-
-The Transformer classes previously inherited directly from StreamTransformer, this class
-however has no dispose method. So a new abstract class was added to include dispose and
-called by Transaction.dispose().
-
-```dart
-abstract class DisposableStreamTransformer<T, R> implements StreamTransformer<T, R> {
-  void dispose();
-}
-```
-
-Steps:
-
-* Change parent class to DisposableStreamTransformer
-* Implement dispose class, and make sure to dispose of your StreamController
-
-### Transaction Class changes
-
-The Transaction class previously did not have access to the transformer, only the stream.
-The signature of Transaction constructor changed from
-
-```dart
-Transaction<T>(Stream<T>);
-```
-
-to
-
-```dart
-Transaction(Stream<Uint8List> stream, DisposableStreamTransformer<Uint8List, T> transformer);
-```
-
-If you are using the static factory methods you should not have to make any changes to your
-code. Only if you created your own Transformer/Transactions.
-
-## FAQ
-
-### Always ask permission to use USB port
-https://github.com/altera2015/usbserial/issues/49
-https://github.com/altera2015/usbserial/issues/38
-
-
-## Dependencies
-
-This library depends on:
-
-https://github.com/felHR85/UsbSerial
-
-
+BSD 3-clause, as the original `usb_serial` (see LICENSE). usb-serial-for-android is MIT licensed.

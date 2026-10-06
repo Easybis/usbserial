@@ -1,4 +1,4 @@
-package dev.bessems.usbserial;
+package com.easybis.usbserial;
 
 import android.hardware.usb.UsbDeviceConnection;
 import android.util.Log;
@@ -51,7 +51,7 @@ public class UsbSerialPortAdapter implements MethodCallHandler, EventChannel.Str
     UsbSerialPortAdapter(BinaryMessenger messenger, int interfaceId, UsbDeviceConnection connection, UsbSerialPort port) {
         m_Connection = connection;
         m_Port = port;
-        m_MethodChannelName = "usb_serial/UsbSerialPortAdapter/" + String.valueOf(interfaceId);
+        m_MethodChannelName = "easybis_usb_serial/UsbSerialPortAdapter/" + String.valueOf(interfaceId);
         m_handler = new Handler(Looper.getMainLooper());
         final MethodChannel channel = new MethodChannel(messenger, m_MethodChannelName);
         channel.setMethodCallHandler(this);

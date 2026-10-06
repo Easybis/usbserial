@@ -365,8 +365,8 @@ class UsbSerial {
   /// PL2303 Hardware USB to Uart bridge. (Fairly common) Used by [create]
   static const String PL2303 = "pl2303";
 
-  static const MethodChannel _channel = const MethodChannel('usb_serial');
-  static const EventChannel _eventChannel = const EventChannel('usb_serial/usb_events');
+  static const MethodChannel _channel = const MethodChannel('easybis_usb_serial');
+  static const EventChannel _eventChannel = const EventChannel('easybis_usb_serial/usb_events');
   static Stream<UsbEvent>? _eventStream;
 
   /// Use this stream to detect if a USB device is plugged in or removed.

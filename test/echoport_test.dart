@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:usb_serial/echo_port.dart';
+import 'package:easybis_usb_serial/echo_port.dart';
 
 void testEchoPort() {
   test("Testing Echo Port data", () async {
