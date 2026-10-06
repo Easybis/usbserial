@@ -12,7 +12,14 @@ import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.util.Log;
 
-import com.felhr.usbserial.UsbSerialDevice;
+import com.hoho.android.usbserial.driver.CdcAcmSerialDriver;
+import com.hoho.android.usbserial.driver.Ch34xSerialDriver;
+import com.hoho.android.usbserial.driver.Cp21xxSerialDriver;
+import com.hoho.android.usbserial.driver.FtdiSerialDriver;
+import com.hoho.android.usbserial.driver.ProlificSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialDriver;
+import com.hoho.android.usbserial.driver.UsbSerialPort;
+import com.hoho.android.usbserial.driver.UsbSerialProber;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -176,6 +183,24 @@ public class UsbSerialPlugin implements FlutterPlugin, MethodCallHandler, EventC
         m_Manager.requestPermission(device, permissionIntent);
     }
 
+    /** The usb-serial-for-android driver for this device: forced by type, else probed. */
+    private static UsbSerialDriver driverFor(String type, UsbDevice device) {
+        switch (type) {
+            case "cdc":
+                return new CdcAcmSerialDriver(device);
+            case "ch34x":
+                return new Ch34xSerialDriver(device);
+            case "cp210x":
+                return new Cp21xxSerialDriver(device);
+            case "ftdi":
+                return new FtdiSerialDriver(device);
+            case "pl2303":
+                return new ProlificSerialDriver(device);
+            default:
+                return UsbSerialProber.getDefaultProber().probeDevice(device);
+        }
+    }
+
     private void openDevice(String type, UsbDevice device, int iface, Result result, boolean allowAcquirePermission) {
 
         final AcquirePermissionCallback cb = new AcquirePermissionCallback() {
@@ -199,19 +224,20 @@ public class UsbSerialPlugin implements FlutterPlugin, MethodCallHandler, EventC
                 return;
             }
 
-            UsbSerialDevice serialDeviceDevice;
-            if ( type.equals("") ) {
-                serialDeviceDevice = UsbSerialDevice.createUsbSerialDevice(device, connection, iface);
-            } else {
-                serialDeviceDevice = UsbSerialDevice.createUsbSerialDevice(type, device, connection, iface);
-            }
-
-            if (serialDeviceDevice != null) {
+            // EasyBIS fork: drivers from usb-serial-for-android (mik3y) instead of felHR UsbSerial.
+            // Same 'type' strings as before; "" = probe by vendor/product id (and CDC class).
+            UsbSerialDriver driver = driverFor(type, device);
+            int portIndex = iface < 0 ? 0 : iface;
+            if (driver != null && portIndex < driver.getPorts().size()) {
+                UsbSerialPort port = driver.getPorts().get(portIndex);
                 int interfaceId = m_InterfaceId++;
-                UsbSerialPortAdapter adapter = new UsbSerialPortAdapter(m_Messenger, interfaceId, connection, serialDeviceDevice);
+                UsbSerialPortAdapter adapter = new UsbSerialPortAdapter(m_Messenger, interfaceId, connection, port);
                 result.success(adapter.getMethodChannelName());
                 Log.d(TAG, "success.");
                 return;
+            }
+            if (connection != null) {
+                connection.close();
             }
             result.error(TAG, "Not an Serial device.", null);
 
