@@ -1,0 +1,7 @@
+build/
+.idea/
+*.iml
+example/build/
+example/.dart_tool/
+example/.flutter-plugins-dependencies
+example/pubspec.lock

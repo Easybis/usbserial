@@ -38,3 +38,8 @@ local.properties
 **/.idea/assetWizardSettings.xml
 example/ios/Podfile
 example/ios/Podfile.lock
+
+# local build output
+build/
+example/.flutter-plugins-dependencies
+*.iml
