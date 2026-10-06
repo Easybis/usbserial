@@ -1,3 +1,19 @@
+# Easybis fork (0.6.0)
+
+This branch moves the Android side to [usb-serial-for-android](https://github.com/mik3y/usb-serial-for-android)
+so that the Prolific PL2303 G / HXN family (e.g. PL2303GC `067b:23a3`) works, while CH34x, CP21xx,
+FTDI, PL2303HX and CDC-ACM adapters keep working. The Dart API is unchanged. Tested on Android with
+PL2303GC, PL2303HX and FTDI FT231X adapters (weighing scale 9600 8N1, milk analysers 1200 8E1 and
+9600 8E1). Use it from a pubspec with:
+
+```yaml
+dependencies:
+  usb_serial:
+    git:
+      url: https://github.com/Easybis/usbserial.git
+      ref: easybis/usb-serial-for-android
+```
+
 # Looking for maintainer
 
 I'm looking for a new maintainer for this project, please indicate your interest here: https://github.com/altera2015/usbserial/issues/121

@@ -1,3 +1,15 @@
+## 0.6.0
+* Android: drivers from usb-serial-for-android (mik3y, 3.9.0) instead of felHR UsbSerial 6.1.0.
+  Adds the Prolific PL2303 G / HXN family (PL2303GC 067b:23a3, GB 23b3, GT 23c3, GL 23d3,
+  GE 23e3, GS 23f3), which felHR answered with "Not an Serial device.". CH34x, CP21xx, FTDI,
+  PL2303HX and CDC-ACM keep working.
+* Dart API and method/event channels unchanged; the `type` argument of `create` still forces
+  "cdc", "ch34x", "cp210x", "ftdi" or "pl2303".
+* Port settings, DTR, RTS and flow control set before `open()` are applied when the port opens.
+* The input stream ends (onDone) when the device is unplugged; serial errors come back as
+  PlatformException instead of crashing.
+* minSdk 17.
+
 ## 0.5.1
 * Improve Java handling of null pointers.
 * Update gradle version on sample.
