@@ -2,7 +2,7 @@ name: easybis_usb_serial
 description: >-
   Android USB serial plugin for Flutter on usb-serial-for-android: CH34x, CP21xx, FTDI, CDC-ACM
   and Prolific PL2303 including the newer G/HXN family (e.g. PL2303GC 067b:23a3). Fork of usb_serial.
-version: 0.6.0
+version: 0.6.1
 homepage: https://github.com/Easybis/usbserial
 repository: https://github.com/Easybis/usbserial
 issue_tracker: https://github.com/Easybis/usbserial/issues

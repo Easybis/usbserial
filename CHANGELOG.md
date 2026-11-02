@@ -1,3 +1,7 @@
+## 0.6.1
+* Android build: `jcenter()` replaced by `mavenCentral()` (Gradle 9 removed it), compileSdk 36,
+  AGP 8.11.1, Java 11, `lint {}` DSL. Builds on the current Flutter template (AGP 9.1, Gradle 9.3.1).
+
 ## 0.6.0
 * First release as `easybis_usb_serial`, a fork of `usb_serial` 0.5.2 (Ron Bessems).
 * Android: drivers from usb-serial-for-android (mik3y, 3.9.0) instead of felHR UsbSerial 6.1.0.
