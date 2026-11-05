@@ -20,7 +20,7 @@ class EchoPort extends AsyncDataSinkSource {
   Stream<Uint8List> fakeData() {
     void start() {
       _running = true;
-      if (_buffer.length > 0) {
+      if (_buffer.isNotEmpty) {
         _buffer.forEach((data) {
           _controller.add(data);
         });

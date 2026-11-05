@@ -46,7 +46,7 @@ class TerminatedTransformer
   final Uint8List? terminator;
   final int
       maxLen; // maximum length the partial buffer will hold before it starts flushing.
-  final stripTerminator;
+  final bool stripTerminator;
 
   late StreamController _controller;
   StreamSubscription? _subscription;
@@ -62,7 +62,12 @@ class TerminatedTransformer
   /// remain attached in the output.
   ///
   /// This constructor creates a single stream
-  TerminatedTransformer({bool sync = false, this.cancelOnError, this.terminator, this.maxLen = 1024, this.stripTerminator = true}) {
+  TerminatedTransformer(
+      {bool sync = false,
+      this.cancelOnError,
+      this.terminator,
+      this.maxLen = 1024,
+      this.stripTerminator = true}) {
     _partial = [];
     _controller = new StreamController<Uint8List>(
         onListen: _onListen,
@@ -86,7 +91,12 @@ class TerminatedTransformer
   ///
   /// This constructor creates a broadcast stream
 
-  TerminatedTransformer.broadcast({bool sync = false, this.cancelOnError, this.terminator, this.maxLen = 1024, this.stripTerminator = true}) {
+  TerminatedTransformer.broadcast(
+      {bool sync = false,
+      this.cancelOnError,
+      this.terminator,
+      this.maxLen = 1024,
+      this.stripTerminator = true}) {
     _partial = [];
     _controller = new StreamController<Uint8List>.broadcast(
         onListen: _onListen, onCancel: _onCancel, sync: sync);
@@ -153,7 +163,7 @@ class TerminatedStringTransformer
   final Uint8List? terminator;
   final int
       maxLen; // maximum length the partial buffer will hold before it starts flushing.
-  final stripTerminator;
+  final bool stripTerminator;
 
   late StreamController _controller;
   StreamSubscription? _subscription;
@@ -172,7 +182,12 @@ class TerminatedStringTransformer
   ///
   /// This constructor creates a single string stream
 
-  TerminatedStringTransformer({bool sync = false, this.cancelOnError, this.terminator, this.maxLen = 1024, this.stripTerminator = true}) {
+  TerminatedStringTransformer(
+      {bool sync = false,
+      this.cancelOnError,
+      this.terminator,
+      this.maxLen = 1024,
+      this.stripTerminator = true}) {
     _partial = [];
     _controller = new StreamController<String>(
         onListen: _onListen,
@@ -198,7 +213,12 @@ class TerminatedStringTransformer
   ///
   /// This constructor creates a broadcast string stream
 
-  TerminatedStringTransformer.broadcast({bool sync = false, this.cancelOnError, this.terminator, this.maxLen = 1024, this.stripTerminator = true}) {
+  TerminatedStringTransformer.broadcast(
+      {bool sync = false,
+      this.cancelOnError,
+      this.terminator,
+      this.maxLen = 1024,
+      this.stripTerminator = true}) {
     _partial = [];
     _controller = new StreamController<String>.broadcast(
         onListen: _onListen, onCancel: _onCancel, sync: sync);
@@ -259,11 +279,11 @@ class TerminatedStringTransformer
 /// bytes followed by a single byte that indicates the length of the rest of
 /// the packet.
 /// null is accepted as a wildcard byte.
-/// <MAGIC BYTE> <LENGTH> <DATA1> <DATA2> ,...
-/// example: [0x25] magic
+/// `<MAGIC BYTE> <LENGTH> <DATA1> <DATA2> ,...`
+/// example: `[0x25]` magic
 /// 0x25 0x02 0x01 0x02
 ///
-/// example [null] magic (will match any header byte)
+/// example `[null]` magic (will match any header byte)
 /// 0x60 0x03 0x01 0x03 0x02
 /// 0x10 0x04 0x01 0x02 0x03 0x04
 ///
@@ -283,7 +303,12 @@ class MagicHeaderAndLengthByteTransformer
   StreamSubscription? _subscription;
   late Stream<Uint8List> _stream;
 
-  MagicHeaderAndLengthByteTransformer({bool sync = false, this.cancelOnError, this.header, this.maxLen = 1024, this.clearTimeout = const Duration(seconds: 1)}) {
+  MagicHeaderAndLengthByteTransformer(
+      {bool sync = false,
+      this.cancelOnError,
+      this.header,
+      this.maxLen = 1024,
+      this.clearTimeout = const Duration(seconds: 1)}) {
     _partial = [];
     _controller = new StreamController<Uint8List>(
         onListen: _onListen,
@@ -298,7 +323,11 @@ class MagicHeaderAndLengthByteTransformer
   }
 
   MagicHeaderAndLengthByteTransformer.broadcast(
-      {bool sync = false, this.cancelOnError, this.header, this.maxLen = 1024, this.clearTimeout = const Duration(seconds: 1)}) {
+      {bool sync = false,
+      this.cancelOnError,
+      this.header,
+      this.maxLen = 1024,
+      this.clearTimeout = const Duration(seconds: 1)}) {
     _partial = [];
     _controller = new StreamController<Uint8List>.broadcast(
         onListen: _onListen, onCancel: _onCancel, sync: sync);
@@ -326,7 +355,7 @@ class MagicHeaderAndLengthByteTransformer
 
     _partial.addAll(data);
 
-    while (_partial.length > 0) {
+    while (_partial.isNotEmpty) {
       int index = wildcardFind(header, _partial);
       if (index < 0) {
         return;
@@ -364,7 +393,7 @@ class MagicHeaderAndLengthByteTransformer
       StreamTransformer.castFrom<Uint8List, Uint8List, RS, RT>(this);
 
   void _onTimer(Timer timer) {
-    if (_partial.length > 0 && !_dataSinceLastTick) {
+    if (_partial.isNotEmpty && !_dataSinceLastTick) {
       _partial.clear();
     }
     _dataSinceLastTick = false;

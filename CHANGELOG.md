@@ -1,3 +1,7 @@
+## 0.6.2
+* pub.dev score: shorter description, `repository` points at the branch that holds this package,
+  all lints of the core set fixed (`isNotEmpty`, typed `stripTerminator`, doc comment). No behaviour change.
+
 ## 0.6.1
 * Android build: `jcenter()` replaced by `mavenCentral()` (Gradle 9 removed it), compileSdk 36,
   AGP 8.11.1, Java 11, `lint {}` DSL. Builds on the current Flutter template (AGP 9.1, Gradle 9.3.1).
